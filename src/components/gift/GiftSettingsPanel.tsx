@@ -43,8 +43,28 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
 
     toast.loading("Adding polaroids...", { id: "compress" });
     
+    const overlay = document.createElement("div");
+    overlay.style.position = "fixed";
+    overlay.style.inset = "0";
+    overlay.style.backgroundColor = "rgba(255, 255, 255, 0.8)";
+    overlay.style.backdropFilter = "blur(4px)";
+    overlay.style.zIndex = "99999";
+    overlay.style.display = "flex";
+    overlay.style.flexDirection = "column";
+    overlay.style.alignItems = "center";
+    overlay.style.justifyContent = "center";
+    overlay.style.color = "#ec4899";
+    overlay.style.fontFamily = "sans-serif";
+    overlay.innerHTML = `
+      <div style="width: 50px; height: 50px; border: 5px solid #fbcfe8; border-top-color: #ec4899; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+      <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+      <h3 style="font-size: 1.5rem; font-weight: bold; margin: 0;">Processing Images...</h3>
+      <p style="font-size: 0.875rem; color: #6b7280; margin-top: 10px;">Optimizing high-res photos. Please wait.</p>
+    `;
+    document.body.appendChild(overlay);
+
     // Yield to the main thread so the UI and toast can render properly before heavy lifting
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise(r => setTimeout(r, 150));
 
     for (const file of filesToProcess) {
         try {
@@ -64,6 +84,9 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
         await new Promise(r => setTimeout(r, 50));
     }
     
+    if (document.body.contains(overlay)) {
+        document.body.removeChild(overlay);
+    }
     toast.success("Polaroids updated!", { id: "compress" });
     onChange({ ...config, backgroundImages: currentImages });
     
@@ -188,16 +211,20 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
                     </p>
                  </div>
                  <button 
+                    type="button"
+                    disabled={(config.backgroundImages?.length || 0) >= 6}
                     onClick={() => {
-                        if (config.backgroundImages?.length >= 6) {
-                            toast.error("You can only add up to 6 hanging polaroids!");
-                        } else {
+                        if ((config.backgroundImages?.length || 0) < 6) {
                             fileInputRef.current?.click();
                         }
                     }}
-                    className="h-10 px-6 rounded-full bg-teal-50 text-teal-600 border border-teal-200 font-bold hover:bg-teal-100 transition-all text-sm flex-shrink-0"
+                    className={`h-10 px-6 rounded-full font-bold transition-all text-sm flex-shrink-0 ${
+                        (config.backgroundImages?.length || 0) >= 6 
+                           ? "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed" 
+                           : "bg-teal-50 text-teal-600 border border-teal-200 hover:bg-teal-100"
+                    }`}
                  >
-                    + Add Hanging Polaroid
+                    {(config.backgroundImages?.length || 0) >= 6 ? "Max 6 Polaroids Reached" : "+ Add Hanging Polaroid"}
                  </button>
                  <input type="file" accept="image/*" multiple className="hidden" ref={fileInputRef} onChange={handleGlobalImageUpload} />
              </div>
