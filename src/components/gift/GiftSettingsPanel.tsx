@@ -63,8 +63,8 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
     `;
     document.body.appendChild(overlay);
 
-    // Yield to the main thread so the UI and toast can render properly before heavy lifting
-    await new Promise(r => setTimeout(r, 150));
+    // Yield heavily to the main thread so the browser is FORCED to paint the overlay before the CPU lock
+    await new Promise(r => requestAnimationFrame(() => setTimeout(r, 300)));
 
     for (const file of filesToProcess) {
         try {
@@ -81,7 +81,7 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
             });
         }
         // Yield to the main thread between each image to prevent freezing the UI
-        await new Promise(r => setTimeout(r, 50));
+        await new Promise(r => setTimeout(r, 100));
     }
     
     if (document.body.contains(overlay)) {

@@ -194,7 +194,33 @@ const Index = () => {
   };
 
   const generateLink = async () => {
+    setPaymentModalOpen(false);
+
+    const overlay = document.createElement("div");
+    overlay.id = "generate-link-overlay";
+    overlay.style.position = "fixed";
+    overlay.style.inset = "0";
+    overlay.style.backgroundColor = "rgba(255, 255, 255, 0.9)";
+    overlay.style.backdropFilter = "blur(8px)";
+    overlay.style.zIndex = "999999";
+    overlay.style.display = "flex";
+    overlay.style.flexDirection = "column";
+    overlay.style.alignItems = "center";
+    overlay.style.justifyContent = "center";
+    overlay.style.color = "#ec4899";
+    overlay.style.fontFamily = "sans-serif";
+    overlay.innerHTML = `
+      <div style="width: 60px; height: 60px; border: 6px solid #fbcfe8; border-top-color: #ec4899; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 24px;"></div>
+      <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+      <h3 style="font-size: 1.75rem; font-weight: 900; margin: 0; background: linear-gradient(to right, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Generating Link...</h3>
+      <p style="font-size: 1rem; color: #6b7280; margin-top: 12px; font-weight: 500;">Wrapping your digital giftbox in the cloud.</p>
+    `;
+    document.body.appendChild(overlay);
+
     toast.loading("Wrapping your digital giftbox...", { id: "generating" });
+    
+    await new Promise(r => setTimeout(r, 150));
+
     const payload = {
       slides,
       config
@@ -248,24 +274,26 @@ const Index = () => {
         }
 
         const copied = await copyUrl(url);
+        if (document.getElementById("generate-link-overlay")) document.getElementById("generate-link-overlay")?.remove();
+        
         if (!copied) {
              setFallbackLink(url);
         } else {
              toast.success("Link copied to clipboard! 🎁 Share it with them now!", { id: "generating" });
         }
-        setPaymentModalOpen(false);
         fireConfetti(100, 2);
     } catch (e) {
         const encoded = btoa(encodeURIComponent(JSON.stringify(payload)));
         const url = `${window.location.origin}/view?data=${encoded}`;
         
         const copied = await copyUrl(url);
+        if (document.getElementById("generate-link-overlay")) document.getElementById("generate-link-overlay")?.remove();
+        
         if (!copied) {
              setFallbackLink(url);
         } else {
              toast.success("Link copied to clipboard! 🎁 Share it with them now!", { id: "generating" });
         }
-        setPaymentModalOpen(false);
         fireConfetti(100, 2);
     }
   };
@@ -568,17 +596,26 @@ const Index = () => {
 
           <motion.button
             layout
-            onClick={addSlide}
-            className="snap-center flex-shrink-0 w-[320px] min-h-[420px] rounded-[2rem] border-[3px] border-dashed border-pink-300 bg-white/40 flex flex-col items-center justify-center gap-6 text-pink-400 hover:border-pink-500 hover:text-pink-600 hover:bg-pink-50/60 transition-all active:scale-95 group shadow-sm backdrop-blur-sm"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+                if (slides.length < 15) addSlide();
+            }}
+            disabled={slides.length >= 15}
+            className={`snap-center flex-shrink-0 w-[320px] min-h-[420px] rounded-[2rem] border-[3px] border-dashed flex flex-col items-center justify-center gap-6 transition-all group shadow-sm backdrop-blur-sm ${
+                slides.length >= 15 
+                  ? "border-gray-300 bg-gray-50/60 text-gray-400 cursor-not-allowed" 
+                  : "border-pink-300 bg-white/40 text-pink-400 hover:border-pink-500 hover:text-pink-600 hover:bg-pink-50/60 active:scale-95"
+            }`}
+            whileHover={slides.length < 15 ? { scale: 1.02 } : undefined}
+            whileTap={slides.length < 15 ? { scale: 0.98 } : undefined}
           >
-            <div className="w-20 h-20 rounded-full bg-white group-hover:bg-pink-100 flex items-center justify-center transition-all duration-300 shadow-md group-hover:shadow-xl group-hover:scale-110">
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
+                slides.length >= 15 ? "bg-gray-200" : "bg-white group-hover:bg-pink-100 group-hover:shadow-xl group-hover:scale-110"
+            }`}>
               <Plus className="w-10 h-10" />
             </div>
             <div className="flex flex-col items-center gap-1">
-              <span className="text-xl font-black">Add Memory</span>
-              <span className="text-sm font-medium opacity-70">Pictures or text messages</span>
+              <span className="text-xl font-black">{slides.length >= 15 ? "Max Limit Reached" : "Add Memory"}</span>
+              <span className="text-sm font-medium opacity-70">{slides.length >= 15 ? "15 pages maximum" : "Pictures or text messages"}</span>
             </div>
           </motion.button>
           
