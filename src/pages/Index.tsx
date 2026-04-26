@@ -209,9 +209,9 @@ const Index = () => {
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-            document.execCommand('copy');
+            const success = document.execCommand('copy');
             textArea.remove();
-            return true;
+            return success;
         } catch (e) {
             return false;
         }
