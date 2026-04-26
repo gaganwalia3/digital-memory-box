@@ -97,17 +97,17 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
               <Lock className="w-5 h-5 text-purple-400" />
               Date Lock <span className="opacity-50 text-xs ml-1">(Optional)</span>
             </label>
-            <div className="relative">
+            <div className="relative w-full">
               <Input 
                 type="datetime-local" 
                 value={config.unlockDate || ""}
                 onChange={(e) => onChange({ ...config, unlockDate: e.target.value || null })}
-                className="rounded-2xl border-white bg-white/70 h-14 px-4 pr-12 shadow-sm focus-visible:ring-pink-300 font-medium text-gray-700 w-full"
+                className="rounded-2xl border-white bg-white/70 h-14 pl-4 pr-10 shadow-sm focus-visible:ring-pink-300 font-medium text-gray-700 w-full min-w-0"
               />
               {config.unlockDate && (
                 <button
                   onClick={() => onChange({ ...config, unlockDate: null })}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-gray-200/50 hover:bg-red-100 text-gray-500 hover:text-red-500 p-1.5 rounded-full transition-colors z-10"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-gray-200/50 hover:bg-red-100 text-gray-500 hover:text-red-500 p-1.5 rounded-full transition-colors z-10"
                   title="Clear Date Lock"
                 >
                   <X className="w-4 h-4" />
