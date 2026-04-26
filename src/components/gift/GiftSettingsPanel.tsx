@@ -92,17 +92,17 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
           {/* Timelock */}
           {(section === "bottom" || section === "all") && (
             <>
-          <div className="space-y-4">
+          <div className="space-y-4 min-w-0">
              <label className="flex items-center gap-2 text-sm font-bold text-gray-600 uppercase tracking-wider">
               <Lock className="w-5 h-5 text-purple-400" />
               Date Lock <span className="opacity-50 text-xs ml-1">(Optional)</span>
             </label>
-            <div className="relative w-full">
+            <div className="relative w-full min-w-0">
               <Input 
                 type="datetime-local" 
                 value={config.unlockDate || ""}
                 onChange={(e) => onChange({ ...config, unlockDate: e.target.value || null })}
-                className="rounded-2xl border-white bg-white/70 h-14 pl-4 pr-10 shadow-sm focus-visible:ring-pink-300 font-medium text-gray-700 w-full min-w-0"
+                className="rounded-2xl border-white bg-white/70 h-14 pl-4 pr-10 shadow-sm focus-visible:ring-pink-300 font-medium text-gray-700 w-full min-w-0 max-w-full"
               />
               {config.unlockDate && (
                 <button
@@ -114,12 +114,12 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
                 </button>
               )}
             </div>
-            <p className="text-xs text-gray-500 font-medium">Box will rattle and stay locked before this date.</p>
+            <p className="text-xs text-gray-500 font-medium truncate">Box will rattle and stay locked before this date.</p>
           </div>
 
           {/* Sender Name */}
           {(section === "bottom" || section === "all") && (
-          <div className="space-y-4">
+          <div className="space-y-4 min-w-0">
              <label className="flex items-center gap-2 text-sm font-bold text-gray-600 uppercase tracking-wider">
               <MessageSquareText className="w-5 h-5 text-indigo-400" />
               Sender Name
@@ -129,14 +129,14 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
               placeholder="Your Name (e.g. John)"
               value={config.senderName || ""}
               onChange={(e) => onChange({ ...config, senderName: e.target.value })}
-              className="rounded-2xl border-white bg-white/70 h-14 px-4 shadow-sm focus-visible:ring-pink-300 font-medium text-gray-700"
+              className="rounded-2xl border-white bg-white/70 h-14 px-4 shadow-sm focus-visible:ring-pink-300 font-medium text-gray-700 w-full min-w-0 max-w-full"
             />
-            <p className="text-xs text-gray-500 font-medium">Who is this gift from?</p>
+            <p className="text-xs text-gray-500 font-medium truncate">Who is this gift from?</p>
           </div>
           )}
 
           {/* Scratch Message */}
-          <div className="space-y-4 lg:col-span-2">
+          <div className="space-y-4 lg:col-span-2 min-w-0">
             <label className="flex items-center gap-2 text-sm font-bold text-gray-600 uppercase tracking-wider">
               <MessageSquareText className="w-5 h-5 text-indigo-400" />
               Secret Message <span className="opacity-50 text-xs ml-1">(Optional)</span>
@@ -145,7 +145,7 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
               placeholder="Type a hidden message for them to scratch off..."
               value={config.secretMessage || ""}
               onChange={(e) => onChange({ ...config, secretMessage: e.target.value || null })}
-              className="rounded-2xl border-white bg-white/70 shadow-sm focus-visible:ring-pink-300 resize-none min-h-[100px] font-medium text-gray-700"
+              className="rounded-2xl border-white bg-white/70 shadow-sm focus-visible:ring-pink-300 resize-none min-h-[100px] font-medium text-gray-700 w-full min-w-0 max-w-full"
             />
             <p className="text-xs text-gray-500 font-medium">Hidden underneath digital silver foil at the very bottom.</p>
           </div>
