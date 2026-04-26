@@ -24,29 +24,44 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleGlobalImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
     
-    const currentImages = config.backgroundImages || [];
-    if (currentImages.length >= 6) {
-       toast.error("You can only add up to 6 hanging polaroids!");
-       return;
+    let currentImages = [...(config.backgroundImages || [])];
+    
+    if (currentImages.length + files.length > 6) {
+       toast.error("You can only add up to 6 hanging polaroids! Extra ones will be ignored.");
     }
     
-    try {
-      const compressedDataUrl = await compressImage(file, 400, 0.4);
-      onChange({ ...config, backgroundImages: [...currentImages, compressedDataUrl] });
-      // Reset input so they can upload the same file again if they deleted it
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (err) {
-      console.warn("Compression unsupported, falling back to raw image.", err);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        onChange({ ...config, backgroundImages: [...currentImages, reader.result as string] });
+    const remainingSlots = 6 - currentImages.length;
+    const filesToProcess = files.slice(0, remainingSlots);
+    
+    if (filesToProcess.length === 0) {
         if (fileInputRef.current) fileInputRef.current.value = "";
-      };
-      reader.readAsDataURL(file);
+        return;
     }
+
+    toast.loading("Adding polaroids...", { id: "compress" });
+    for (const file of filesToProcess) {
+        try {
+            const compressedDataUrl = await compressImage(file, 400, 0.4);
+            currentImages.push(compressedDataUrl);
+        } catch (err) {
+            const reader = new FileReader();
+            await new Promise<void>((resolve) => {
+                reader.onloadend = () => {
+                    currentImages.push(reader.result as string);
+                    resolve();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    }
+    
+    toast.success("Polaroids updated!", { id: "compress" });
+    onChange({ ...config, backgroundImages: currentImages });
+    
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const removeBackgroundImage = (idx: number) => {
@@ -97,17 +112,18 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
               <Lock className="w-5 h-5 text-purple-400" />
               Date Lock <span className="opacity-50 text-xs ml-1">(Optional)</span>
             </label>
-            <div className="relative w-full min-w-0">
+            <div className="relative w-full min-w-0 overflow-hidden rounded-2xl border-none">
               <Input 
                 type="datetime-local" 
                 value={config.unlockDate || ""}
                 onChange={(e) => onChange({ ...config, unlockDate: e.target.value || null })}
-                className="rounded-2xl border-white bg-white/70 h-14 pl-4 pr-10 shadow-sm focus-visible:ring-pink-300 font-medium text-gray-700 w-full min-w-0 max-w-full"
+                className="rounded-2xl border-white bg-white/70 h-14 pl-4 pr-10 shadow-sm focus-visible:ring-pink-300 font-medium text-gray-700 w-full min-w-0 max-w-[100%] block"
+                style={{ width: "100%", maxWidth: "100%", display: "block" }}
               />
               {config.unlockDate && (
                 <button
                   onClick={() => onChange({ ...config, unlockDate: null })}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-gray-200/50 hover:bg-red-100 text-gray-500 hover:text-red-500 p-1.5 rounded-full transition-colors z-10"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-gray-200/80 hover:bg-red-100 text-gray-500 hover:text-red-500 p-1.5 rounded-full transition-colors z-10"
                   title="Clear Date Lock"
                 >
                   <X className="w-4 h-4" />
@@ -177,7 +193,7 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
                  >
                     + Add Hanging Polaroid
                  </button>
-                 <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleGlobalImageUpload} />
+                 <input type="file" accept="image/*" multiple className="hidden" ref={fileInputRef} onChange={handleGlobalImageUpload} />
              </div>
 
              {config.backgroundImages && config.backgroundImages.length > 0 && (
