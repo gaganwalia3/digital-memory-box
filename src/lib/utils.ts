@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function compressImage(file: File, maxWidth = 1000): Promise<string> {
+export function compressImage(file: File, maxWidth = 800, quality = 0.5): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -28,7 +28,7 @@ export function compressImage(file: File, maxWidth = 1000): Promise<string> {
         canvas.height = height;
         ctx?.drawImage(img, 0, 0, width, height);
         
-        resolve(canvas.toDataURL("image/jpeg", 0.8));
+        resolve(canvas.toDataURL("image/jpeg", quality));
       };
       img.onerror = (error) => reject(error);
     };

@@ -11,16 +11,15 @@ interface PaymentModalProps {
   onSuccess: () => void;
 }
 
-const PRESET_AMOUNTS = [5, 11, 51, 101];
+const PRESET_AMOUNTS = [49, 101, 201, 501];
 
 export default function PaymentModal({ isOpen, onClose, onSuccess }: PaymentModalProps) {
-  const [amount, setAmount] = useState<number | "">(5);
+  const [amount, setAmount] = useState<number | "">(49);
   const [step, setStep] = useState<"amount" | "pay">("amount");
-  const [upiId, setUpiId] = useState("");
 
   const handleProceed = () => {
-    if (typeof amount !== "number" || amount < 5) {
-      toast.error("Please enter a minimum donation of ₹5");
+    if (typeof amount !== "number" || amount < 49) {
+      toast.error("Please enter a minimum donation of ₹49");
       return;
     }
     setStep("pay");
@@ -32,13 +31,12 @@ export default function PaymentModal({ isOpen, onClose, onSuccess }: PaymentModa
     // Reset state for future
     setTimeout(() => {
       setStep("amount");
-      setAmount(5);
+      setAmount(49);
     }, 500);
   };
 
-  // Replace this with the user's UPI ID. 
-  // If empty, we still generate a format, but it won't work perfectly without their ID.
-  const targetUpiId = upiId || "gagan.walia5678@oksbi";
+  // Use the predefined UPI ID.
+  const targetUpiId = "gagan.walia5678@oksbi";
 
   const upiUrl = `upi://pay?pa=${targetUpiId}&pn=Digital%20Joybox&am=${amount}&cu=INR`;
 
@@ -92,34 +90,22 @@ export default function PaymentModal({ isOpen, onClose, onSuccess }: PaymentModa
                             Support Digital Joybox
                           </h2>
                           <p className="mb-6 text-sm text-gray-500">
-                            To generate your shareable link, please make a minimal donation of ₹5. Feel free to give more if you love it!
+                            To generate your shareable link, please make a minimal donation of ₹49. Feel free to give more if you love it!
                           </p>
-                        </div>
-
-                        {/* Your UPI ID Input */}
-                        <div className="mb-4">
-                          <label className="text-xs font-semibold uppercase text-gray-500">Your UPI ID (For receiving)</label>
-                          <input
-                            type="text"
-                            value={upiId}
-                            onChange={(e) => setUpiId(e.target.value)}
-                            placeholder="e.g. name@okhdfcbank"
-                            className="mt-1 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20"
-                          />
                         </div>
 
                         {/* Amount Input */}
                         <div className="mb-6">
                           <div className="relative flex items-center justify-center">
                             <span className="absolute left-6 text-2xl font-semibold text-gray-400">₹</span>
-                            <input
-                              type="number"
-                              value={amount}
-                              onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-                              className="w-full rounded-2xl border-2 border-gray-100 bg-gray-50 py-4 pl-12 pr-6 text-2xl font-bold text-gray-900 focus:border-pink-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-500/10"
-                              placeholder="Amount"
-                              min="5"
-                            />
+                              <input
+                                type="number"
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
+                                className="w-full rounded-2xl border-2 border-gray-100 bg-gray-50 py-4 pl-12 pr-6 text-2xl font-bold text-gray-900 focus:border-pink-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-500/10"
+                                placeholder="Amount"
+                                min="49"
+                              />
                           </div>
 
                           {/* Presets */}

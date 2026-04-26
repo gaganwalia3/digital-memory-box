@@ -199,6 +199,33 @@ const Index = () => {
       config
     };
     
+    const fallbackCopy = (text: string) => {
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            document.execCommand('copy');
+            textArea.remove();
+            return true;
+        } catch (e) {
+            return false;
+        }
+    };
+
+    const copyUrl = async (url: string) => {
+        try {
+            await navigator.clipboard.writeText(url);
+            return true;
+        } catch (err) {
+            return fallbackCopy(url);
+        }
+    };
+
     try {
         const response = await fetch('https://bytebin.lucko.me/post', {
             method: 'POST',
@@ -219,21 +246,24 @@ const Index = () => {
              url = `${window.location.origin}/view?data=${encoded}`;
         }
 
-        await navigator.clipboard.writeText(url);
+        const copied = await copyUrl(url);
+        if (!copied) {
+             prompt("Here is your link! Copy it below:", url);
+        }
         toast.success("Link copied to clipboard! 🎁 Share it with them now!", { id: "generating" });
         setPaymentModalOpen(false);
         fireConfetti(100, 2);
     } catch (e) {
-        try {
-            const encoded = btoa(encodeURIComponent(JSON.stringify(payload)));
-            const url = `${window.location.origin}/view?data=${encoded}`;
-            await navigator.clipboard.writeText(url);
-            toast.success("Link copied to clipboard! 🎁 Share it with them now!", { id: "generating" });
-            setPaymentModalOpen(false);
-            fireConfetti(100, 2);
-        } catch (err) {
-            toast.error("Couldn't copy — try manually. Link might be too large.", { id: "generating" });
+        const encoded = btoa(encodeURIComponent(JSON.stringify(payload)));
+        const url = `${window.location.origin}/view?data=${encoded}`;
+        
+        const copied = await copyUrl(url);
+        if (!copied) {
+             prompt("Here is your link! Copy it below:", url);
         }
+        toast.success("Link copied to clipboard! 🎁 Share it with them now!", { id: "generating" });
+        setPaymentModalOpen(false);
+        fireConfetti(100, 2);
     }
   };
 

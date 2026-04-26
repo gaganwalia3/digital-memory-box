@@ -28,7 +28,7 @@ const SlideEditor = ({ slide, index, onUpdate, onRemove }: SlideEditorProps) => 
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const compressedDataUrl = await compressImage(file, 1000);
+      const compressedDataUrl = await compressImage(file, 800, 0.5);
       onUpdate(index, { ...slide, image: compressedDataUrl, videoUrl: "" });
     } catch (err) {
       console.warn("Compression unsupported, falling back to raw image.", err);

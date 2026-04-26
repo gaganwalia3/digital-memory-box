@@ -34,7 +34,7 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
     }
     
     try {
-      const compressedDataUrl = await compressImage(file, 800);
+      const compressedDataUrl = await compressImage(file, 400, 0.4);
       onChange({ ...config, backgroundImages: [...currentImages, compressedDataUrl] });
       // Reset input so they can upload the same file again if they deleted it
       if (fileInputRef.current) fileInputRef.current.value = "";
