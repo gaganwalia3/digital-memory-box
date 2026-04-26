@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Link2, Gift, Eye, ArrowLeft } from "lucide-react";
+import { Plus, Link2, Gift, Eye, ArrowLeft, X, Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
@@ -110,6 +110,7 @@ const Index = () => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [isRattling, setIsRattling] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [fallbackLink, setFallbackLink] = useState<string | null>(null);
 
   const handleRestart = async () => {
     if (window.confirm("Are you sure you want to clear all progress? This cannot be undone.")) {
@@ -248,9 +249,10 @@ const Index = () => {
 
         const copied = await copyUrl(url);
         if (!copied) {
-             prompt("Here is your link! Copy it below:", url);
+             setFallbackLink(url);
+        } else {
+             toast.success("Link copied to clipboard! 🎁 Share it with them now!", { id: "generating" });
         }
-        toast.success("Link copied to clipboard! 🎁 Share it with them now!", { id: "generating" });
         setPaymentModalOpen(false);
         fireConfetti(100, 2);
     } catch (e) {
@@ -259,9 +261,10 @@ const Index = () => {
         
         const copied = await copyUrl(url);
         if (!copied) {
-             prompt("Here is your link! Copy it below:", url);
+             setFallbackLink(url);
+        } else {
+             toast.success("Link copied to clipboard! 🎁 Share it with them now!", { id: "generating" });
         }
-        toast.success("Link copied to clipboard! 🎁 Share it with them now!", { id: "generating" });
         setPaymentModalOpen(false);
         fireConfetti(100, 2);
     }
@@ -410,6 +413,65 @@ const Index = () => {
           onClose={() => setPaymentModalOpen(false)} 
           onSuccess={generateLink} 
         />
+
+        <AnimatePresence>
+          {fallbackLink && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="bg-white rounded-3xl p-6 md:p-8 w-full max-w-lg shadow-2xl relative"
+              >
+                <button
+                  onClick={() => setFallbackLink(null)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-800 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+                <div className="text-center mb-6">
+                  <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <Check className="w-8 h-8 text-green-500" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Giftbox Ready! 🎁</h3>
+                  <p className="text-gray-500">Your browser blocked the automatic copy. Please copy your link below:</p>
+                </div>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-200">
+                  <input
+                    type="text"
+                    value={fallbackLink}
+                    readOnly
+                    className="flex-1 bg-transparent border-none focus:ring-0 text-gray-700 font-medium px-2 min-w-0 outline-none truncate"
+                    onClick={(e) => e.currentTarget.select()}
+                  />
+                  <Button
+                    onClick={() => {
+                      try {
+                        const textArea = document.createElement("textarea");
+                        textArea.value = fallbackLink;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        textArea.remove();
+                        toast.success("Copied to clipboard!");
+                      } catch (e) {
+                         toast.error("Still unable to copy, please copy manually");
+                      }
+                    }}
+                    className="shrink-0 bg-pink-500 hover:bg-pink-600 text-white rounded-xl px-6 py-5 font-bold flex items-center gap-2"
+                  >
+                    <Copy className="w-4 h-4" />
+                    Copy Link
+                  </Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
