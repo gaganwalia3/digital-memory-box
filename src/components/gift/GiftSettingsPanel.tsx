@@ -42,6 +42,10 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
     }
 
     toast.loading("Adding polaroids...", { id: "compress" });
+    
+    // Yield to the main thread so the UI and toast can render properly before heavy lifting
+    await new Promise(r => setTimeout(r, 100));
+
     for (const file of filesToProcess) {
         try {
             const compressedDataUrl = await compressImage(file, 400, 0.4);
@@ -56,6 +60,8 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
                 reader.readAsDataURL(file);
             });
         }
+        // Yield to the main thread between each image to prevent freezing the UI
+        await new Promise(r => setTimeout(r, 50));
     }
     
     toast.success("Polaroids updated!", { id: "compress" });
