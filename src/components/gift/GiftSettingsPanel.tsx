@@ -97,12 +97,23 @@ export const GiftSettingsPanel = ({ config, onChange, section = "all" }: GiftSet
               <Lock className="w-5 h-5 text-purple-400" />
               Date Lock <span className="opacity-50 text-xs ml-1">(Optional)</span>
             </label>
-            <Input 
-              type="datetime-local" 
-              value={config.unlockDate || ""}
-              onChange={(e) => onChange({ ...config, unlockDate: e.target.value || null })}
-              className="rounded-2xl border-white bg-white/70 h-14 px-4 shadow-sm focus-visible:ring-pink-300 font-medium text-gray-700"
-            />
+            <div className="relative">
+              <Input 
+                type="datetime-local" 
+                value={config.unlockDate || ""}
+                onChange={(e) => onChange({ ...config, unlockDate: e.target.value || null })}
+                className="rounded-2xl border-white bg-white/70 h-14 px-4 pr-12 shadow-sm focus-visible:ring-pink-300 font-medium text-gray-700 w-full"
+              />
+              {config.unlockDate && (
+                <button
+                  onClick={() => onChange({ ...config, unlockDate: null })}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-gray-200/50 hover:bg-red-100 text-gray-500 hover:text-red-500 p-1.5 rounded-full transition-colors z-10"
+                  title="Clear Date Lock"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
             <p className="text-xs text-gray-500 font-medium">Box will rattle and stay locked before this date.</p>
           </div>
 
