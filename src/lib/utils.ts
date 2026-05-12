@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function compressImage(file: File, maxWidth = 800, quality = 0.5): Promise<string> {
+export function compressImage(file: File, maxWidth = 500, quality = 0.4): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);

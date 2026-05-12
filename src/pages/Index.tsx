@@ -270,6 +270,11 @@ const Index = () => {
             url = `${window.location.origin}/view?id=${data.key}`;
         } else {
              const encoded = btoa(encodeURIComponent(JSON.stringify(payload)));
+             if (encoded.length > 30000) {
+                 toast.error("Gift is too large! Please remove some photos to make the link shareable.", { id: "generating" });
+                 if (document.getElementById("generate-link-overlay")) document.getElementById("generate-link-overlay")?.remove();
+                 return;
+             }
              url = `${window.location.origin}/view?data=${encoded}`;
         }
 
@@ -284,6 +289,11 @@ const Index = () => {
         fireConfetti(100, 2);
     } catch (e) {
         const encoded = btoa(encodeURIComponent(JSON.stringify(payload)));
+        if (encoded.length > 30000) {
+             toast.error("Gift is too large! Please remove some photos to make the link shareable.", { id: "generating" });
+             if (document.getElementById("generate-link-overlay")) document.getElementById("generate-link-overlay")?.remove();
+             return;
+        }
         const url = `${window.location.origin}/view?data=${encoded}`;
         
         const copied = await copyUrl(url);

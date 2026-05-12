@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useRef, useState } from "react";
 import { compressImage } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Slide {
   text: string;
@@ -28,15 +29,15 @@ const SlideEditor = ({ slide, index, onUpdate, onRemove }: SlideEditorProps) => 
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const compressedDataUrl = await compressImage(file, 800, 0.5);
+      const compressedDataUrl = await compressImage(file);
       onUpdate(index, { ...slide, image: compressedDataUrl, videoUrl: "" });
     } catch (err) {
-      console.warn("Compression unsupported, falling back to raw image.", err);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        onUpdate(index, { ...slide, image: reader.result as string, videoUrl: "" });
-      };
-      reader.readAsDataURL(file);
+      console.warn("Compression unsupported or failed.", err);
+      if (file.type === "image/heic" || file.name.toLowerCase().endsWith(".heic")) {
+         toast.error("HEIC format is not supported. Please upload a JPEG or PNG.");
+      } else {
+         toast.error("Failed to process image. Try a smaller photo.");
+      }
     }
   };
   
